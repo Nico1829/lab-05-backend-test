@@ -4,33 +4,88 @@ describe("Inventory System", () => {
   let inventory;
 
   beforeEach(() => {
-    // TODO: Inicializar el inventario antes de cada prueba
+    inventory = new Inventory();
+    const mockDate = new Date("2023-01-01T00:00:00.000Z");
+    jest.spyOn(global, "Date").mockImplementation(() => mockDate);
   });
 
   describe("Add Product", () => {
     test("should add a new product successfully", () => {
       // PREPARAR
       // TODO: Crear un objeto producto con todos los campos requeridos
+      const product = {
+        id: 1,
+        name: "Producto 1",
+        price: 100,
+        stock: 10,
+        category: "Electrónica",
+      };
       // EJECUTAR
       // TODO: Llamar al método addProduct
+      const response = inventory.addProduct(product);
       // VALIDAR
+      expect(response).toEqual({
+        id: 1,
+        name: "Producto 1",
+        price: 100,
+        category: "Electrónica",
+        stock: 10,
+        createdAt: new Date("2023-01-01T00:00:00.000Z"),
+      });
+
       // TODO: Verificar que el producto se agregó correctamente
+      expect(inventory.products).toEqual([
+        {
+          category: "Electrónica",
+          createdAt: new Date("2023-01-01T00:00:00.000Z"),
+          id: 1,
+          name: "Producto 1",
+          price: 100,
+          stock: 10,
+        },
+      ]);
+
       // TODO: Verificar que se agregó la fecha de creación
+
+      expect(response.createdAt).toEqual(new Date("2023-01-01T00:00:00.000Z"));
     });
 
-    test("should not allow duplicate product IDs", () => {
-      // PREPARAR
-      // TODO: Crear y agregar un producto
-      // TODO: Crear otro producto con el mismo ID
-      // EJECUTAR y VALIDAR
-      // TODO: Verificar que se lanza el error correcto al intentar agregar un producto duplicado
+    test("should throw error if payload does not have required fields", () => {
+      // Prepare
+      const payload = {
+        id: 5,
+        price: 100,
+        category: "Electrónica",
+      };
+
+      // Execute
+      expect(() => inventory.addProduct(payload)).toThrow(
+        "El producto debe tener id, nombre, precio y categoría"
+      );
     });
 
-    test("should validate required fields", () => {
+    test("should throw error if product already exists", () => {
       // PREPARAR
-      // TODO: Crear un objeto producto con campos faltantes
-      // EJECUTAR y VALIDAR
-      // TODO: Verificar que se lanza el error correcto al intentar agregar un producto inválido
+      const payload = {
+        id: 1,
+        name: "Producto 1",
+        price: 100,
+        category: "Electrónica",
+      };
+
+      const alreadyExistingProduct = {
+        id: 1,
+        name: "Producto 2",
+        price: 300,
+        category: "Hogar",
+      };
+      // Execute
+      inventory.addProduct(alreadyExistingProduct);
+
+      // Validate
+      expect(() => inventory.addProduct(payload)).toThrow(
+        "Ya existe un producto con este ID"
+      );
     });
   });
 
